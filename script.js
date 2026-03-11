@@ -21,16 +21,7 @@ const firebaseConfig = {
 };
 
 const fbApp = initializeApp(firebaseConfig);
-const db = getDatabase(fbApp, "https://diario-scolastico-cfd88-default-rtdb.europe-west1.firebasedatabase.app/");
-
-// --- FUNZIONE PER CRIPTARE IL PIN ---
-async function hashPin(pin) {
-    const msgUint8 = new TextEncoder().encode(pin);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-}
-
+const db = getDatabase(fbApp, "https://diario-scolastico-cfd88-default-rtdb.europe-west1.firebasedatabase.")
 // ── MATERIE ──────────────────────────────────────────────────
 const MATERIE = [
   'Algebra','Geometria','Scienze','Italiano','Storia','Geografia',
@@ -427,27 +418,25 @@ function initEvents() {
     document.getElementById('login-section').style.display    = 'block';
   });m
 
-  // / Accedi (Versione Originale Funzionante)
-document.getElementById('btn-login').addEventListener('click', () => {
-    const username = document.getElementById('login-username').value.trim();
-    const pin = document.getElementById('login-pin').value.trim();
-
-    if (username && pin) {
-        // Torniamo all'ID semplice: Nome_PIN
-        currentUser = username + "_" + pin;
-        
-        localStorage.setItem('diaryUser', currentUser);
-        
-        // Nascondi login e mostra dashboard
-        document.getElementById('login-section').style.display = 'none';
-        document.getElementById('main-container').style.display = 'block';
-        
-        // Carica i dati (assicurati che il nome della tua funzione sia corretto)
-        loadUserData(); 
-    } else {
-        alert("Inserisci nome e PIN!");
+  // /  // Accedi
+  document.getElementById('btn-accedi').addEventListener('click', async () => {
+    const nome = document.getElementById('login-nome').value;
+    const pin  = document.getElementById('login-pin').value;
+    const errEl = document.getElementById('login-error');
+    errEl.style.display = 'none';
+    document.getElementById('btn-accedi').disabled = true;
+    document.getElementById('btn-accedi').textContent = 'Accesso...';
+    const err = await doLogin(nome, pin);
+    document.getElementById('btn-accedi').disabled = false;
+    document.getElementById('btn-accedi').textContent = 'Accedi';
+    if (err) {
+      errEl.textContent    = err;
+      errEl.style.display  = 'block';
+      return;
     }
-});
+    currentUser = loadSession();
+    showApp();
+  });
 
   // Crea account
   document.getElementById('btn-crea').addEventListener('click', async () => {
