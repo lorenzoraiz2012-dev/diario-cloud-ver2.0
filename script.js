@@ -427,48 +427,27 @@ function initEvents() {
     document.getElementById('login-section').style.display    = 'block';
   });m
 
-  // / Accedi
-document.getElementById('btn-login').addEventListener('click', async () => { // <-- Aggiungi async qui!
+  // / Accedi (Versione Originale Funzionante)
+document.getElementById('btn-login').addEventListener('click', () => {
     const username = document.getElementById('login-username').value.trim();
     const pin = document.getElementById('login-pin').value.trim();
 
     if (username && pin) {
-        // Criptiamo il PIN inserito
-        const securePin = await hashPin(pin);
+        // Torniamo all'ID semplice: Nome_PIN
+        currentUser = username + "_" + pin;
         
-        const oldUserId = `${username}_${pin}`;
-        const newUserId = `${username}_${securePin}`;
-
-        const oldRef = ref(db, `utenti/${oldUserId}`);
-        const newRef = ref(db, `utenti/${newUserId}`);
-
-        // Controlliamo se esiste già l'account sicuro
-        const newSnapshot = await get(newRef);
-        
-        if (!newSnapshot.exists()) {
-            // Se non esiste, cerchiamo se c'è quello vecchio da migrare
-            const oldSnapshot = await get(oldRef);
-            if (oldSnapshot.exists()) {
-                // COPIAMO i dati dal vecchio al nuovo percorso
-                await set(newRef, oldSnapshot.val());
-                // CANCELLIAMO il vecchio percorso con PIN in chiaro
-                await remove(oldRef);
-                console.log("Migrazione silenziosa completata!");
-            }
-        }
-
-        // Ora usiamo l'ID sicuro per caricare il diario
-        currentUser = newUserId;
         localStorage.setItem('diaryUser', currentUser);
-        loadUserData(); // La tua funzione per mostrare i dati
         
+        // Nascondi login e mostra dashboard
         document.getElementById('login-section').style.display = 'none';
         document.getElementById('main-container').style.display = 'block';
+        
+        // Carica i dati (assicurati che il nome della tua funzione sia corretto)
+        loadUserData(); 
     } else {
         alert("Inserisci nome e PIN!");
     }
 });
-
 
   // Crea account
   document.getElementById('btn-crea').addEventListener('click', async () => {
