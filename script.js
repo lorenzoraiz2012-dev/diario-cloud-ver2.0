@@ -418,25 +418,34 @@ function initEvents() {
     document.getElementById('login-section').style.display    = 'block';
   });m
 
-  // /  // Accedi
-  document.getElementById('btn-accedi').addEventListener('click', async () => {
-    const nome = document.getElementById('login-nome').value;
-    const pin  = document.getElementById('login-pin').value;
-    const errEl = document.getElementById('login-error');
-    errEl.style.display = 'none';
-    document.getElementById('btn-accedi').disabled = true;
-    document.getElementById('btn-accedi').textContent = 'Accesso...';
-    const err = await doLogin(nome, pin);
-    document.getElementById('btn-accedi').disabled = false;
-    document.getElementById('btn-accedi').textContent = 'Accedi';
-    if (err) {
-      errEl.textContent    = err;
-      errEl.style.display  = 'block';
-      return;
+// --- VERSIONE DI RIPRISTINO (FUNZIONANTE) ---
+document.getElementById('btn-login').addEventListener('click', () => {
+    const username = document.getElementById('login-username').value.trim();
+    const pin = document.getElementById('login-pin').value.trim();
+
+    if (username && pin) {
+        // Torniamo all'ID semplice: Nome_PIN (senza criptazione)
+        currentUser = username + "_" + pin;
+        
+        // Salviamo nella memoria del telefono
+        localStorage.setItem('diaryUser', currentUser);
+        
+        // Nascondi la schermata di login e mostra l'app
+        document.getElementById('login-section').style.display = 'none';
+        document.getElementById('main-container').style.display = 'block';
+        
+        // Avvia il caricamento dei dati
+        if (typeof loadUserData === "function") {
+            loadUserData();
+        } else {
+            console.error("Errore: la funzione loadUserData non è definita!");
+        }
+        
+    } else {
+        alert("Per favore, inserisci sia il Nome che il PIN!");
     }
-    currentUser = loadSession();
-    showApp();
-  });
+});
+
 
   // Crea account
   document.getElementById('btn-crea').addEventListener('click', async () => {
