@@ -21,7 +21,7 @@ const firebaseConfig = {
 };
 
 const fbApp = initializeApp(firebaseConfig);
-const db    = getDatabase(fbApp);
+const db = getDatabase(fbApp, "https://diario-scolastico-cfd88-default-rtdb.europe-west1.firebasedatabase.app/");
 
 // ── MATERIE ──────────────────────────────────────────────────
 const MATERIE = [
