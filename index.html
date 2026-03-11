@@ -1,216 +1,137 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
-  <title>Diario Scolastico</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
-    rel="stylesheet"
-  />
-  <link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Diario Scolastico</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="apple-touch-icon" href="favicon.png">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <!-- ===== SCHERMATA LOGIN ===== -->
-  <div id="login-screen">
-    <div class="login-card">
-      <div class="login-logo">
-        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
-          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-        </svg>
-      </div>
-      <h1>Diario Scolastico</h1>
-      <p class="login-subtitle">Il tuo spazio scolastico personale</p>
-
-      <!-- FORM ACCEDI -->
-      <div id="login-section">
-        <div class="input-group">
-          <label for="login-nome">Nome</label>
-          <input type="text" id="login-nome" placeholder="Il tuo nome" autocomplete="off" />
+    <div id="login-container" class="container">
+        <div class="card glass">
+            <div class="logo-area">
+                <img src="favicon.png" alt="Logo Diario" class="logo-icon">
+                <h1>Diario Scolastico</h1>
+                <p>Il tuo spazio scolastico personale</p>
+            </div>
+            
+            <form id="login-form">
+                <div class="input-group">
+                    <label for="username">NOME</label>
+                    <input type="text" id="username" placeholder="Inserisci il tuo nome" required>
+                </div>
+                <div class="input-group">
+                    <label for="pin">SCEGLI UN PIN</label>
+                    <input type="password" id="pin" placeholder="••••••" minlength="6" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Accedi o Registrati</button>
+            </form>
+            <div class="info-link">
+                <button id="show-info">Cos'è questo diario?</button>
+            </div>
         </div>
-        <div class="input-group">
-          <label for="login-pin">PIN</label>
-          <input type="password" id="login-pin" placeholder="Il tuo PIN segreto" maxlength="8" autocomplete="off" />
-        </div>
-        <div id="login-error" class="error-msg" style="display:none;"></div>
-        <button id="btn-accedi" class="btn-primary">Accedi</button>
-        <button id="btn-to-register" class="btn-ghost">Non hai un account? Registrati</button>
-      </div>
-
-      <!-- FORM REGISTRATI -->
-      <div id="register-section" style="display:none;">
-        <div class="input-group">
-          <label for="reg-nome">Nome</label>
-          <input type="text" id="reg-nome" placeholder="Il tuo nome" autocomplete="off" />
-        </div>
-        <div class="input-group">
-          <label for="reg-pin">Scegli un PIN</label>
-          <input type="password" id="reg-pin" placeholder="PIN segreto (es. 1234)" maxlength="8" autocomplete="off" />
-        </div>
-        <div id="reg-error" class="error-msg" style="display:none;"></div>
-        <button id="btn-crea" class="btn-primary">Crea Account</button>
-        <button id="btn-to-login" class="btn-ghost">Hai già un account? Accedi</button>
-      </div>
     </div>
-  </div>
 
-  <!-- ===== SCHERMATA APP ===== -->
-  <div id="app-screen" style="display:none;">
+    <div id="main-container" class="container hidden">
+        <header class="main-header glass">
+            <h1>Ciao, <span id="user-display"></span>!</h1>
+            <button id="logout-btn" class="btn btn-secondary">Esci</button>
+        </header>
 
-    <!-- Intestazione -->
-    <header class="app-header">
-      <div class="header-left">
-        <h1 class="header-title">Diario</h1>
-        <span class="user-badge" id="user-badge"></span>
-      </div>
-      <div class="header-right">
-        <button id="btn-export" class="icon-btn" title="Esporta CSV">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
-          </svg>
-        </button>
-        <button id="btn-logout" class="icon-btn" title="Esci">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
-          </svg>
-        </button>
-      </div>
-    </header>
-
-    <!-- Contenuto schede -->
-    <main class="tab-content">
-
-      <!-- HOME -->
-      <div id="tab-home" class="tab-pane active">
-        <div class="stats-grid">
-          <div class="stat-card orange">
-            <div class="stat-icon">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            </div>
-            <div class="stat-label">Da fare</div>
-            <div class="stat-value" id="stat-todo">0</div>
-          </div>
-          <div class="stat-card green">
-            <div class="stat-icon">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-            </div>
-            <div class="stat-label">Completati</div>
-            <div class="stat-value" id="stat-done">0</div>
-          </div>
-        </div>
-
-        <div class="search-box">
-          <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input type="text" id="search-input" placeholder="Cerca materia o descrizione..." />
-        </div>
-
-        <div class="section-header">
-          <h2>I tuoi impegni</h2>
-          <span id="items-count" class="items-count"></span>
-        </div>
-        <div id="diario-list" class="items-list"></div>
-      </div>
-
-      <!-- AGGIUNGI -->
-      <div id="tab-add" class="tab-pane">
-        <div class="form-card">
-          <h2 class="form-title">Nuovo Impegno</h2>
-          <form id="add-form">
-            <div class="form-row-2">
-              <div class="input-group">
-                <label>Materia</label>
-                <div class="select-wrap">
-                  <select id="form-materia"></select>
+        <main>
+            <section class="section">
+                <div class="section-header"><h2>Il tuo Riepilogo</h2></div>
+                <div class="stats-grid">
+                    <div class="stat-card glass">
+                        <div class="stat-icon">📅</div>
+                        <div class="stat-value" id="compiti-oggi">0</div>
+                        <div class="stat-label">Compiti per oggi</div>
+                    </div>
+                    <div class="stat-card glass">
+                        <div class="stat-icon">📊</div>
+                        <div class="stat-value" id="media-generale">0.0</div>
+                        <div class="stat-label">Media Generale</div>
+                    </div>
                 </div>
-              </div>
-              <div class="input-group">
-                <label>Tipo</label>
-                <div class="select-wrap">
-                  <select id="form-tipo">
-                    <option value="Compito">Compito</option>
-                    <option value="Verifica">Verifica</option>
-                    <option value="Evento">Evento</option>
-                  </select>
+            </section>
+
+            <section class="section tab-content" id="home-tab">
+                <div class="section-header"><h2>Prossimi Compiti</h2></div>
+                <div class="search-bar glass">
+                    <input type="text" id="compiti-search" placeholder="Cerca un compito...">
                 </div>
-              </div>
-            </div>
-            <div class="input-group">
-              <label>Data</label>
-              <input type="date" id="form-data" required />
-            </div>
-            <div class="input-group">
-              <label>Descrizione</label>
-              <textarea id="form-descrizione" placeholder="Cosa c'è da fare?" rows="3" required></textarea>
-            </div>
-            <button type="submit" class="btn-primary">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-              Aggiungi
+                <div id="compiti-list" class="list-container">
+                    <p class="empty-message">Aggiungi il tuo primo compito!</p>
+                </div>
+            </section>
+
+            <section class="section tab-content hidden" id="add-tab">
+                <div class="section-header"><h2>Nuovo Compito o Voto</h2></div>
+                <div class="form-card glass">
+                    <form id="add-form">
+                        <div class="input-group">
+                            <label for="form-type">Tipo</label>
+                            <select id="form-type">
+                                <option value="compito">Compito</option>
+                                <option value="voto">Voto</option>
+                            </select>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="form-subject">Materia</label>
+                            <input type="text" id="form-subject" placeholder="Es. Algebra" required>
+                        </div>
+
+                        <div id="compito-fields">
+                            <div class="input-group">
+                                <label for="form-desc">Descrizione</label>
+                                <textarea id="form-desc" placeholder="Descrivi il compito..." required></textarea>
+                            </div>
+                            <div class="input-group">
+                                <label for="form-date">Data di consegna</label>
+                                <input type="date" id="form-date" required>
+                            </div>
+                        </div>
+
+                        <div id="voto-fields" class="hidden">
+                            <div class="input-group">
+                                <label for="form-grade">Voto</label>
+                                <input type="number" id="form-grade" placeholder="Es. 8.5" step="0.5" min="2" max="10">
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Aggiungi</button>
+                    </form>
+                </div>
+            </section>
+
+            <section class="section tab-content hidden" id="voti-tab">
+                <div class="section-header"><h2>Voti per Materia</h2></div>
+                <div id="voti-grid" class="voti-grid">
+                    </div>
+            </section>
+
+        </main>
+
+        <nav class="bottom-nav glass">
+            <button class="nav-btn active" data-tab="home">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9.5z"/></svg>
+                <span>Home</span>
             </button>
-          </form>
-        </div>
-      </div>
-
-      <!-- VOTI -->
-      <div id="tab-voti" class="tab-pane">
-        <div class="media-generale-card">
-          <div class="media-label">Media Generale</div>
-          <div id="media-generale" class="media-value">—</div>
-        </div>
-
-        <div class="form-card">
-          <h3 class="form-subtitle">Aggiungi Voto</h3>
-          <form id="voto-form">
-            <div class="form-row-2">
-              <div class="input-group">
-                <label>Materia</label>
-                <div class="select-wrap">
-                  <select id="voto-materia"></select>
-                </div>
-              </div>
-              <div class="input-group">
-                <label>Voto (1–10)</label>
-                <input type="number" id="voto-value" min="1" max="10" step="0.5" placeholder="es. 7.5" />
-              </div>
-            </div>
-            <button type="submit" class="btn-primary">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-              Aggiungi Voto
+            <button class="nav-btn" data-tab="add">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                <span>Aggiungi</span>
             </button>
-          </form>
-        </div>
+            <button class="nav-btn" data-tab="voti">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                <span>Voti</span>
+            </button>
+        </nav>
+    </div>
 
-        <div class="section-header"><h2>Voti per Materia</h2></div>
-        <div id="voti-grid" class="voti-grid"></div>
-      </div>
-
-    </main>
-
-    <!-- Navigazione inferiore -->
-    <nav class="bottom-nav">
-      <button class="nav-btn active" data-tab="home">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5z"/><polyline points="9 21 9 12 15 12 15 21"/></svg>
-        <span>Home</span>
-      </button>
-      <button class="nav-btn" data-tab="add">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        <span>Aggiungi</span>
-      </button>
-      <button class="nav-btn" data-tab="voti">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-        <span>Voti</span>
-      </button>
-    </nav>
-<div style="text-align: center; margin-top: 20px;">
-    <button onclick="alert('🔐 PRIVACY E INFO\n\n1. I tuoi dati sono salvati in una cartella privata accessibile solo col tuo PIN.\n2. Usiamo Google Firebase con server in Europa.\n3. Nessuno, oltre a te, può vedere i tuoi voti.\n\nCONSIGLIO: Aggiungi questa pagina alla schermata Home del telefono per usarla come una vera App!')" 
-            style="background: none; border: none; color: #6366f1; text-decoration: underline; cursor: pointer; font-size: 0.9em;">
-        Info sulla Privacy e Utilizzo
-    </button>
-</div>
-  </div>
-
-  <script type="module" src="script.js"></script>
+    <script type="module" src="script.js"></script>
 </body>
 </html>
