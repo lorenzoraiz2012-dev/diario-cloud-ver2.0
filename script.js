@@ -17,7 +17,7 @@ const firebaseConfig = {
   storageBucket:     'diario-scolastico-cfd88.firebasestorage.app',
   messagingSenderId: '826560545383',
   appId:             '1:826560545383:web:aa9471e480f1d7aa9bcac2',
-  databaseURL:       'https://diario-scolastico-cfd88-default-rtdb.firebaseio.com'
+  databaseURL:       'https://diario-scolastico-cfd88-default-rtdb.europe-west1.firebasedatabase.app'
 };
 
 const fbApp = initializeApp(firebaseConfig);
