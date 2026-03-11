@@ -23,6 +23,14 @@ const firebaseConfig = {
 const fbApp = initializeApp(firebaseConfig);
 const db = getDatabase(fbApp, "https://diario-scolastico-cfd88-default-rtdb.europe-west1.firebasedatabase.app/");
 
+// --- FUNZIONE PER CRIPTARE IL PIN ---
+async function hashPin(pin) {
+    const msgUint8 = new TextEncoder().encode(pin);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
 // ── MATERIE ──────────────────────────────────────────────────
 const MATERIE = [
   'Algebra','Geometria','Scienze','Italiano','Storia','Geografia',
@@ -417,27 +425,50 @@ function initEvents() {
   document.getElementById('btn-to-login').addEventListener('click', () => {
     document.getElementById('register-section').style.display = 'none';
     document.getElementById('login-section').style.display    = 'block';
-  });
+  });m
 
-  // Accedi
-  document.getElementById('btn-accedi').addEventListener('click', async () => {
-    const nome = document.getElementById('login-nome').value;
-    const pin  = document.getElementById('login-pin').value;
-    const errEl = document.getElementById('login-error');
-    errEl.style.display = 'none';
-    document.getElementById('btn-accedi').disabled = true;
-    document.getElementById('btn-accedi').textContent = 'Accesso...';
-    const err = await doLogin(nome, pin);
-    document.getElementById('btn-accedi').disabled = false;
-    document.getElementById('btn-accedi').textContent = 'Accedi';
-    if (err) {
-      errEl.textContent    = err;
-      errEl.style.display  = 'block';
-      return;
+  // / Accedi
+document.getElementById('btn-login').addEventListener('click', async () => { // <-- Aggiungi async qui!
+    const username = document.getElementById('login-username').value.trim();
+    const pin = document.getElementById('login-pin').value.trim();
+
+    if (username && pin) {
+        // Criptiamo il PIN inserito
+        const securePin = await hashPin(pin);
+        
+        const oldUserId = `${username}_${pin}`;
+        const newUserId = `${username}_${securePin}`;
+
+        const oldRef = ref(db, `utenti/${oldUserId}`);
+        const newRef = ref(db, `utenti/${newUserId}`);
+
+        // Controlliamo se esiste già l'account sicuro
+        const newSnapshot = await get(newRef);
+        
+        if (!newSnapshot.exists()) {
+            // Se non esiste, cerchiamo se c'è quello vecchio da migrare
+            const oldSnapshot = await get(oldRef);
+            if (oldSnapshot.exists()) {
+                // COPIAMO i dati dal vecchio al nuovo percorso
+                await set(newRef, oldSnapshot.val());
+                // CANCELLIAMO il vecchio percorso con PIN in chiaro
+                await remove(oldRef);
+                console.log("Migrazione silenziosa completata!");
+            }
+        }
+
+        // Ora usiamo l'ID sicuro per caricare il diario
+        currentUser = newUserId;
+        localStorage.setItem('diaryUser', currentUser);
+        loadUserData(); // La tua funzione per mostrare i dati
+        
+        document.getElementById('login-section').style.display = 'none';
+        document.getElementById('main-container').style.display = 'block';
+    } else {
+        alert("Inserisci nome e PIN!");
     }
-    currentUser = loadSession();
-    showApp();
-  });
+});
+
 
   // Crea account
   document.getElementById('btn-crea').addEventListener('click', async () => {
