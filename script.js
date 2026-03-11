@@ -1,5 +1,5 @@
 // ============================================================
-//  DIARIO CLOUD - VERSIONE RIPRISTINATA (FUNZIONANTE)
+//  DIARIO CLOUD v2.0 - VERSIONE INTEGRALE RIPRISTINATA
 // ============================================================
 
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
@@ -7,7 +7,7 @@ import {
   getDatabase, ref, get, set, push, onValue, update, remove
 } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
 
-// ── CONFIGURAZIONE FIREBASE (Corretta) ──────────────────────────
+// ── CONFIGURAZIONE FIREBASE ──────────────────────────────────
 const firebaseConfig = {
   apiKey:            'AIzaSyBLPEAIdG8yHTkhlxCg84kgXTbORK7GG2w',
   authDomain:        'diario-scolastico-cfd88.firebaseapp.com',
@@ -81,7 +81,7 @@ function todayISO() {
   return new Date().toISOString().split('T')[0];
 }
 
-// ── SESSION ──────────────────────────────────────────────────
+// ── SESSIONE ──────────────────────────────────────────────────
 function saveSession(user) {
   localStorage.setItem('diario_session', JSON.stringify(user));
 }
@@ -92,38 +92,38 @@ function loadSession() {
   try { return JSON.parse(localStorage.getItem('diario_session')); } catch { return null; }
 }
 
-// ── AUTH ─────────────────────────────────────────────────────
+// ── AUTENTICAZIONE ────────────────────────────────────────────
 async function doLogin(nome, pin) {
   if (!nome.trim() || !pin.trim()) return 'Inserisci nome e PIN.';
   const key = getUserKey(nome, pin);
   try {
     const snap = await get(ref(db, `utenti/${key}/info`));
-    if (!snap.exists()) return 'Account non trovato. Usa "Crea Account" per registrarti.';
+    if (!snap.exists()) return 'Account non trovato. Registrati prima.';
     const user = { nome: nome.trim(), pin, key };
     saveSession(user);
     return null;
   } catch (e) {
-    return 'Errore di connessione Firebase.';
+    return 'Errore di connessione.';
   }
 }
 
 async function doRegister(nome, pin) {
   if (!nome.trim() || !pin.trim()) return 'Inserisci nome e PIN.';
-  if (pin.length < 4) return 'Il PIN deve avere almeno 4 cifre.';
+  if (pin.length < 4) return 'Il PIN deve essere di almeno 4 cifre.';
   const key = getUserKey(nome, pin);
   try {
     const snap = await get(ref(db, `utenti/${key}/info`));
-    if (snap.exists()) return 'Account già registrato.';
+    if (snap.exists()) return 'Account già esistente.';
     await set(ref(db, `utenti/${key}/info`), { nome: nome.trim(), createdAt: Date.now() });
     const user = { nome: nome.trim(), pin, key };
     saveSession(user);
     return null;
   } catch (e) {
-    return 'Errore di connessione Firebase.';
+    return 'Errore di connessione.';
   }
 }
 
-// ── FIREBASE CRUD ────────────────────────────────────────────
+// ── OPERAZIONI DATABASE ───────────────────────────────────────
 async function addDiarioItem(data) {
   await push(ref(db, `utenti/${currentUser.key}/diario`), {
     ...data, completato: false, studiato: false
@@ -149,7 +149,7 @@ async function deleteVoto(id) {
   await remove(ref(db, `utenti/${currentUser.key}/voti/${id}`));
 }
 
-// ── SUBSCRIPTIONS ─────────────────────────────────────────────
+// ── SINCRONIZZAZIONE DATI ─────────────────────────────────────
 function subscribe() {
   unsubDiario = onValue(ref(db, `utenti/${currentUser.key}/diario`), snap => {
     diarioData = snap.val() || {};
@@ -162,63 +162,131 @@ function subscribe() {
 }
 
 function unsubscribe() {
-  if (unsubDiario) { unsubDiario(); unsubDiario = null; }
-  if (unsubVoti)   { unsubVoti();   unsubVoti   = null; }
+  if (unsubDiario) unsubDiario();
+  if (unsubVoti) unsubVoti();
 }
 
-// ── RENDER ───────────────────────────────────────────────────
+// ── RENDERIZZAZIONE HOME ──────────────────────────────────────
 function renderHome() {
   const t = today();
   let todo = 0, done = 0;
   const items = [];
+
   for (const [id, item] of Object.entries(diarioData)) {
     const itemDate = new Date(item.data + 'T00:00:00');
     const past = itemDate < t;
-    if (item.tipo === 'Compito') { item.completato ? done++ : todo++; } else { past ? done++ : todo++; }
+
+    if (item.tipo === 'Compito') {
+      item.completato ? done++ : todo++;
+    } else {
+      past ? done++ : todo++;
+    }
+
     const q = searchQuery.toLowerCase();
     if (q && !item.materia.toLowerCase().includes(q) && !item.descrizione.toLowerCase().includes(q)) continue;
     if (item.tipo === 'Compito' && item.completato) continue;
     if ((item.tipo === 'Verifica' || item.tipo === 'Evento') && past) continue;
+
     items.push({ id, ...item });
   }
+
   items.sort((a, b) => new Date(a.data) - new Date(b.data));
+
   document.getElementById('stat-todo').textContent = todo;
   document.getElementById('stat-done').textContent = done;
   const list = document.getElementById('diario-list');
+
   if (items.length === 0) {
-    list.innerHTML = `<div class="empty-state"><h3>Tutto pulito!</h3></div>`;
+    list.innerHTML = `<div class="empty-state"><h3>Tutto pronto! 🚀</h3><p>Nessun impegno in vista.</p></div>`;
     return;
   }
+
   list.innerHTML = items.map(item => buildCard(item)).join('');
 }
 
 function buildCard(item) {
   const col = hashColor(item.materia);
+  const isC = item.tipo === 'Compito';
+  const isV = item.tipo === 'Verifica';
+
+  // LOGICA DELLE SPUNTE (Ripristinata)
+  const checkHtml = isC ? `
+    <button class="checkbox-btn ${item.completato ? 'checked' : ''}" onclick="handleToggle('${item.id}','completato')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+    </button>` : isV ? `
+    <button class="checkbox-btn square ${item.studiato ? 'checked' : ''}" onclick="handleToggle('${item.id}','studiato')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+    </button>` : `
+    <div class="event-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>`;
+
   return `
-    <div class="diario-card">
+    <div class="diario-card ${isV && item.studiato ? 'studiato-card' : ''}">
+      <div class="card-action">${checkHtml}</div>
       <div class="card-body">
-        <span class="badge-materia" style="background:${col.bg};color:${col.text}">${item.materia}</span>
-        <div class="card-desc">${item.descrizione}</div>
-        <div class="card-footer">${fmtDate(item.data)}</div>
-        <button class="btn-delete" onclick="handleDeleteDiario('${item.id}')">Elimina</button>
+        <div class="card-badges">
+          <span class="badge-materia" style="background:${col.bg};color:${col.text}">${item.materia}</span>
+          <span class="badge-tipo">${item.tipo}</span>
+        </div>
+        <div class="card-desc ${item.completato ? 'completed-text' : ''}">${item.descrizione}</div>
+        <div class="card-footer">
+          <div class="card-date">${fmtDate(item.data)}</div>
+          <button class="btn-delete" onclick="handleDeleteDiario('${item.id}')">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M9 6V4h6v2"/></svg>
+          </button>
+        </div>
       </div>
     </div>`;
 }
 
+// ── RENDERIZZAZIONE VOTI ──────────────────────────────────────
 function renderVoti() {
+  const grouped = {};
+  for (const [id, v] of Object.entries(votiData)) {
+    if (!grouped[v.materia]) grouped[v.materia] = [];
+    grouped[v.materia].push({ id, voto: Number(v.voto) });
+  }
+
+  const materie = Object.keys(grouped).sort();
+  const mediaEl = document.getElementById('media-generale');
+  
+  if (materie.length === 0) {
+    mediaEl.textContent = '—';
+  } else {
+    const totale = materie.reduce((sum, m) => {
+      const vMateria = grouped[m].map(v => v.voto);
+      return sum + (vMateria.reduce((a, b) => a + b, 0) / vMateria.length);
+    }, 0) / materie.length;
+    mediaEl.textContent = totale.toFixed(2);
+  }
+
   const grid = document.getElementById('voti-grid');
-  grid.innerHTML = `<p style="padding:20px">Voti caricati con successo!</p>`;
+  grid.innerHTML = materie.map(m => {
+    const vMateria = grouped[m].map(v => v.voto);
+    const media = vMateria.reduce((a, b) => a + b, 0) / vMateria.length;
+    return `
+      <div class="voto-card">
+        <div class="voto-card-header">
+          <span>${m}</span>
+          <span class="voto-media ${getMediaClass(media)}">${media.toFixed(2)}</span>
+        </div>
+        <div class="voti-chips">
+          ${grouped[m].map(e => `<span class="voto-chip" onclick="handleDeleteVoto('${e.id}',${e.voto})">${e.voto}</span>`).join('')}
+        </div>
+      </div>`;
+  }).join('');
 }
 
-// ── HANDLERS GLOBALI ─────────────────────────────────────────
-window.handleDeleteDiario = async (id) => {
-  if (confirm('Eliminare?')) await deleteDiario(id);
-};
+// ── HANDLERS GLOBALI ──────────────────────────────────────────
+window.handleToggle = async (id, field) => { await toggleDiario(id, field); };
+window.handleDeleteDiario = async (id) => { if (confirm('Eliminare questo impegno?')) await deleteDiario(id); };
+window.handleDeleteVoto = async (id, voto) => { if (confirm(`Eliminare il voto ${voto}?`)) await deleteVoto(id); };
 
-// ── NAVIGAZIONE SCHEDE ─────────────────────────────────────────
+// ── NAVIGAZIONE E UI ──────────────────────────────────────────
 function showTab(tab) {
+  activeTab = tab;
   document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
   document.getElementById(`tab-${tab}`).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
 }
 
 function fillSelects() {
@@ -232,6 +300,7 @@ function showApp() {
   document.getElementById('app-screen').style.display   = 'flex';
   document.getElementById('user-badge').textContent     = currentUser.nome;
   fillSelects();
+  document.getElementById('form-data').value = todayISO();
   subscribe();
 }
 
@@ -242,7 +311,7 @@ function showLogin() {
 
 // ── EVENTI ────────────────────────────────────────────────────
 function initEvents() {
-  // Toggle Schermate
+  // Switch Login/Registrazione
   document.getElementById('btn-to-register').onclick = () => {
     document.getElementById('login-section').style.display = 'none';
     document.getElementById('register-section').style.display = 'block';
@@ -270,15 +339,46 @@ function initEvents() {
 
   // Logout
   document.getElementById('btn-logout').onclick = () => {
-    unsubscribe(); clearSession(); currentUser = null; showLogin();
+    if (confirm('Vuoi uscire?')) { unsubscribe(); clearSession(); showLogin(); }
   };
 
-  // Navigazione
+  // Navigazione Tab
   document.querySelectorAll('.nav-btn').forEach(btn => {
     btn.onclick = () => showTab(btn.dataset.tab);
   });
+
+  // Ricerca
+  document.getElementById('search-input').oninput = (e) => {
+    searchQuery = e.target.value;
+    renderHome();
+  };
+
+  // Aggiungi Compito
+  document.getElementById('add-form').onsubmit = async (e) => {
+    e.preventDefault();
+    const materia = document.getElementById('form-materia').value;
+    const tipo = document.getElementById('form-tipo').value;
+    const data = document.getElementById('form-data').value;
+    const descrizione = document.getElementById('form-descrizione').value.trim();
+    if (!descrizione) return;
+    await addDiarioItem({ materia, tipo, data, descrizione });
+    document.getElementById('form-descrizione').value = '';
+    showTab('home');
+  };
+
+  // Aggiungi Voto
+  document.getElementById('voto-form').onsubmit = async (e) => {
+    e.preventDefault();
+    const materia = document.getElementById('voto-materia').value;
+    const voto = parseFloat(document.getElementById('voto-value').value);
+    if (voto >= 1 && voto <= 10) {
+      await addVoto(materia, voto);
+      document.getElementById('voto-value').value = '';
+    }
+  };
 }
 
+// ── AVVIO ─────────────────────────────────────────────────────
 function init() {
   initEvents();
   const session = loadSession();
