@@ -815,3 +815,28 @@ body {
   .voti-grid { grid-template-columns: 1fr; }
   .stats-grid { gap: 10px; }
 }
+/* --- RIPRISTINO EFFETTO VETRO (Glassmorphism) --- */
+
+.diario-card, .voto-card {
+    background: rgba(255, 255, 255, 0.35) !important; /* Trasparenza */
+    backdrop-filter: blur(12px) !important;           /* Sfocatura sfondo */
+    -webkit-backdrop-filter: blur(12px);              /* Supporto Safari/iOS */
+    border: 1px solid rgba(255, 255, 255, 0.4) !important; /* Bordo lucido */
+    border-radius: 20px !important;                   /* Angoli arrotondati */
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1) !important; /* Ombra leggera */
+    margin-bottom: 15px;
+}
+
+/* Effetto per le verifiche già studiate (Vetro Verde) */
+.studiato-card {
+    background: rgba(200, 255, 200, 0.4) !important;
+    border: 1px solid rgba(255, 255, 255, 0.6) !important;
+}
+
+/* Rende la barra di navigazione in basso tipo "vetro" */
+.nav-bar {
+    background: rgba(255, 255, 255, 0.6) !important;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
