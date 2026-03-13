@@ -409,7 +409,18 @@ async function authSystem(username, password, mode) {
     }
   };
 }
+// Sostituisci 'btnAccedi' e 'btnRegistrati' con gli ID reali dei tuoi bottoni
+document.getElementById('btnAccedi').addEventListener('click', async () => {
+    const u = document.getElementById('usernameInput').value;
+    const p = document.getElementById('passwordInput').value;
+    await authSystem(u, p, 'login');
+});
 
+document.getElementById('btnRegistrati').addEventListener('click', async () => {
+    const u = document.getElementById('usernameInput').value;
+    const p = document.getElementById('passwordInput').value;
+    await authSystem(u, p, 'register');
+});
 // ── AVVIO ─────────────────────────────────────────────────────
 function init() {
   initEvents();
