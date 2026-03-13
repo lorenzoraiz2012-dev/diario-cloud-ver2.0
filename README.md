@@ -7,7 +7,6 @@ Benvenuti nel **Diario Scolastico**, una Web App moderna progettata per aiutare 
 - **Isolamento dei Dati:** Ogni utente dispone di uno spazio privato nel database (non vedrai i dati degli altri).
 - **Cloud Sync:** I dati sono salvati online; accedi da PC, Tablet o Smartphone e ritrova tutto.
 - **Calcolo Medie:** Visualizzazione immediata della media voti per materia.
-- **Esportazione:** Possibilità di scaricare i propri dati in formato CSV.
 
 ## 🛡️ Privacy e Trasparenza
 La trasparenza è fondamentale. Ecco come vengono gestiti i tuoi dati:
