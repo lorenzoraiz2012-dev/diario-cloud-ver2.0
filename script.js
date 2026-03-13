@@ -21,13 +21,6 @@ const firebaseConfig = {
 const fbApp = initializeApp(firebaseConfig);
 const db = getDatabase(fbApp);
 
-async function getHashedID(username, password) {
-    const text = `${username.toLowerCase().trim()}_${password.trim()}`;
-    const msgUint8 = new TextEncoder().encode(text);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-}
 // ── MATERIE ──────────────────────────────────────────────────
 const MATERIE = [
   'Algebra','Geometria','Scienze','Italiano','Storia','Geografia',
@@ -328,46 +321,21 @@ function initEvents() {
     document.getElementById('login-section').style.display = 'block';
   };
 
-  // Login e registrazione
-async function authSystem(username, password, mode) {
-    if (!username || !password) return alert("Riempi tutti i campi!");
+  // Login
+  document.getElementById('btn-accedi').onclick = async () => {
+    const nome = document.getElementById('login-nome').value;
+    const pin = document.getElementById('login-pin').value;
+    const err = await doLogin(nome, pin);
+    if (err) alert(err); else { currentUser = loadSession(); showApp(); }
+  };
 
-    const hashedID = await getHashedID(username, password); // Nuovo ID protetto
-    const rawID = `${username.toLowerCase().trim()}_${password.trim()}`; // Vecchio ID (in chiaro)
-    
-    const secureRef = ref(db, `utenti/${hashedID}`);
-    const oldRef = ref(db, `utenti/${rawID}`);
-
-    const secureSnap = await get(secureRef);
-    const oldSnap = await get(oldRef);
-
-    if (mode === 'login') {
-        // Caso A: L'utente è già criptato
-        if (secureSnap.exists()) {
-            return avviaSessione(secureSnap.val());
-        } 
-        // Caso B: L'utente è vecchio (MIGRAZIONE)
-        if (oldSnap.exists()) {
-            const dati = oldSnap.val();
-            await set(secureRef, dati); // Copia i dati nella nuova "cassaforte"
-            await remove(oldRef);       // Elimina la vecchia traccia in chiaro
-            return avviaSessione(dati);
-        }
-        alert("Credenziali errate!");
-
-    } else if (mode === 'register') {
-        if (secureSnap.exists() || oldSnap.exists()) return alert("Utente già esistente!");
-        
-        const nuovoUtente = {
-            username: username.trim(),
-            dataCreazione: new Date().toISOString(),
-            voti: [],
-            compiti: []
-        };
-        await set(secureRef, nuovoUtente);
-        avviaSessione(nuovoUtente);
-    }
-}
+  // Registrazione
+  document.getElementById('btn-crea').onclick = async () => {
+    const nome = document.getElementById('reg-nome').value;
+    const pin = document.getElementById('reg-pin').value;
+    const err = await doRegister(nome, pin);
+    if (err) alert(err); else { currentUser = loadSession(); showApp(); }
+  };
 
   // Logout
   document.getElementById('btn-logout').onclick = () => {
@@ -409,18 +377,7 @@ async function authSystem(username, password, mode) {
     }
   };
 }
-// Sostituisci 'btnAccedi' e 'btnRegistrati' con gli ID reali dei tuoi bottoni
-document.getElementById('btnAccedi').addEventListener('click', async () => {
-    const u = document.getElementById('usernameInput').value;
-    const p = document.getElementById('passwordInput').value;
-    await authSystem(u, p, 'login');
-});
 
-document.getElementById('btnRegistrati').addEventListener('click', async () => {
-    const u = document.getElementById('usernameInput').value;
-    const p = document.getElementById('passwordInput').value;
-    await authSystem(u, p, 'register');
-});
 // ── AVVIO ─────────────────────────────────────────────────────
 function init() {
   initEvents();
