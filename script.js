@@ -23,9 +23,9 @@ const db = getDatabase(fbApp);
 
 // ── MATERIE ──────────────────────────────────────────────────
 const MATERIE = [
-  'Algebra','Geometria','Scienze','Italiano','Storia','Geografia',
+  'matematica','Algebra','Geometria','Scienze','Italiano','Storia','Geografia',
   'Inglese','Tedesco','Religione','Educazione Civica','Tecnologia',
-  'Arte','Musica','Motoria','Certificazioni Linguistica','Laboratori','Evento'
+  'Arte','Musica','Motoria','Certificazioni Linguistiche','Laboratori','Evento'
 ];
 
 // ── COLORI PASTELLO ──────────────────────────────────────────
