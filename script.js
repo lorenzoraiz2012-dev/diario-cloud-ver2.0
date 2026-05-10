@@ -23,7 +23,7 @@ const db = getDatabase(fbApp);
 
 // ── MATERIE ──────────────────────────────────────────────────
 const MATERIE = [
-  'Matematica','Algebra','Geometria','Scienze','Italiano','Storia','Geografia',
+  'Matematica','Algebra','Aritmetica','Geometria','Scienze','Italiano','Storia','Geografia',
   'Inglese','Tedesco','Religione','Educazione Civica','Tecnologia',
   'Arte','Musica','Motoria','Certificazioni Linguistiche','Laboratori','Evento'
 ];
